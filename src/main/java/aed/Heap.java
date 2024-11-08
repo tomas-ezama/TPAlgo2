@@ -72,15 +72,13 @@ public class Heap<T> {
                 permutar(posicion, der);
                 posiciones.add(new Pair<>(posicion, heap.get(posicion)));
                 posicion = der;
-                izq = buscarPosicionIzq(posicion);
-                der = buscarPosicionDer(posicion);
             } else {
                 permutar(posicion, izq);
                 posiciones.add(new Pair<>(posicion, heap.get(posicion)));
                 posicion = izq;
-                der = buscarPosicionDer(posicion);
-                izq = buscarPosicionIzq(posicion);
             }
+            izq = buscarPosicionIzq(posicion);
+            der = buscarPosicionDer(posicion);
         }
         posiciones.add(new Pair<>(posicion, heap.get(posicion)));
         return posiciones;
