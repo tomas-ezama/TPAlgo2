@@ -31,13 +31,13 @@ public class Heap<T> {
     public ArrayList<Pair<Integer, T>> desencolar() {
         ArrayList<Pair<Integer, T>> posiciones = new ArrayList<>();
         if (nroDeElementos == 1) {
-            posiciones.add(new Pair(0, heap.get(0)));
-            heap.set(0, null);
+            posiciones.add(new Pair(0, heap.get(RAIZ)));
+            heap.set(RAIZ, null);
             nroDeElementos--;
         } else {
             T poped = proximo();
-            heap.set(0, heap.get(nroDeElementos-1));
-            heap.set(nroDeElementos-1, null);
+            heap.set(RAIZ, heap.get(ultimoElemento()));
+            heap.set(ultimoElemento(), null);
             nroDeElementos--;
             posiciones = bajar(RAIZ);
             posiciones.add(new Pair(nroDeElementos - 1, poped));
@@ -46,13 +46,13 @@ public class Heap<T> {
     }
 
     public T proximo() {
-        return heap.get(0);
+        return heap.get(RAIZ);
     }
 
     private ArrayList<Pair<Integer, T>> subir(int posicion) {
         int padre = buscarPosicionPadre(posicion);
         ArrayList<Pair<Integer, T>> posiciones = new ArrayList<>();
-        while (posicion != 0 && comparator.compare(heap.get(posicion), heap.get(padre))>0) {
+        while (posicion != RAIZ && comparator.compare(heap.get(posicion), heap.get(padre)) > 0) {
             permutar(posicion, padre);
             posiciones.add(new Pair<>(posicion, heap.get(posicion)));
             posicion = padre;
@@ -68,7 +68,7 @@ public class Heap<T> {
         ArrayList<Pair<Integer, T>> posiciones = new ArrayList<>();
         while (posicion < nroDeElementos
                 && (haySiguienteMayor(posicion, izq) || haySiguienteMayor(posicion, der))) {
-            if (haySiguienteMayor(posicion, der) && comparator.compare(heap.get(der), heap.get(izq))>0) {
+            if (haySiguienteMayor(posicion, der) && comparator.compare(heap.get(der), heap.get(izq)) > 0) {
                 permutar(posicion, der);
                 posiciones.add(new Pair<>(posicion, heap.get(posicion)));
                 posicion = der;
@@ -84,6 +84,13 @@ public class Heap<T> {
         return posiciones;
     }
 
+    public ArrayList<Pair<Integer, T>> eliminar(int id) {
+       heap.set(id, heap.get(ultimoElemento()));
+       heap.set(ultimoElemento(), null);
+       nroDeElementos--;
+       return bajar(id);
+    }
+
     private void permutar(int a, int b) {
         T dataA = heap.get(a);
         T dataB = heap.get(b);
@@ -92,7 +99,7 @@ public class Heap<T> {
     }
 
     private boolean haySiguienteMayor(int posicion, int lado) {
-        return lado<nroDeElementos && comparator.compare(heap.get(posicion), heap.get(lado))<0;
+        return lado<nroDeElementos && comparator.compare(heap.get(posicion), heap.get(lado)) < 0;
     }
 
     private int buscarPosicionPadre(int posicion) {
@@ -116,6 +123,10 @@ public class Heap<T> {
             s += heap.get(i) + ",";
         }
         return s + heap.get(nroDeElementos-1);
+    }
+
+    public int ultimoElemento() {
+        return nroDeElementos - 1;
     }
 
 
