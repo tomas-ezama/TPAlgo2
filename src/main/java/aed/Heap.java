@@ -129,5 +129,9 @@ public class Heap<T> {
         return nroDeElementos - 1;
     }
 
+    public ArrayList<T> getHeap() {
+        return new ArrayList<>(heap);
+    }
+
 
 }
