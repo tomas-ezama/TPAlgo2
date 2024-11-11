@@ -12,8 +12,7 @@ public class BestEffort {
     private Ciudad[] ciudades;
     private Heap<Traslado> trasladosMasAntiguos;
     private Heap<Traslado> trasladosMasRedituables;
-    private ArrayList<Traslado> trasladosPorDespachar;
-    private int trasladosArraySize;
+    private int totalDeTrasladosPorDespachar;
     private Heap<Ciudad> ciudadesConMayorSuperavit;
     private ArrayList<Integer> ciudadesConMayorGanacia;
     private ArrayList<Integer> ciudadesConMayorPerdida;
@@ -21,14 +20,12 @@ public class BestEffort {
     private int gananciaTotal;
 
     public BestEffort(int cantCiudades, Traslado[] traslados){
-        trasladosArraySize = traslados.length;
+        totalDeTrasladosPorDespachar = traslados.length;
         gananciaTotal = 0;
         iniciarCiudades(cantCiudades);
         iniciarTraslados();
-        for (int i = 0; i < trasladosArraySize; i++) {
+        for (int i = 0; i < totalDeTrasladosPorDespachar; i++) {
             Traslado traslado = traslados[i];
-            traslado.setIndiceMaestro(i);
-            trasladosPorDespachar.add(traslado);
             trasladosMasAntiguos.encolar(traslado);
             trasladosMasRedituables.encolar(traslado);
         }
@@ -38,7 +35,7 @@ public class BestEffort {
     private void actualizarIndices() {
         ArrayList<Traslado> masAntiguosHeap = trasladosMasAntiguos.getHeap();
         ArrayList<Traslado> masRedituablesHeap = trasladosMasRedituables.getHeap();
-        for (int i = 0; i < trasladosArraySize; i++) {
+        for (int i = 0; i < totalDeTrasladosPorDespachar; i++) {
             masAntiguosHeap.get(i).setIndiceMasAntiguo(i);
             masRedituablesHeap.get(i).setIndiceMasRedituable(i);
         }
@@ -83,19 +80,13 @@ public class BestEffort {
     private void iniciarTraslados() {
         trasladosMasAntiguos = new Heap<>(new TrasladosAntiguosComparator());
         trasladosMasRedituables = new Heap<>(new TrasladosRedituablesComparator());
-        trasladosPorDespachar = new ArrayList<>();
     }
 
     public void registrarTraslados(Traslado[] traslados) {
         for (Traslado traslado: traslados) {
-            if (trasladosArraySize == trasladosPorDespachar.size()) {
-                trasladosPorDespachar.add(traslado);
-            } else {
-                trasladosPorDespachar.set(trasladosArraySize, traslado);
-            }
             trasladosMasRedituables.encolar(traslado);
             trasladosMasAntiguos.encolar(traslado);
-            trasladosArraySize++;
+            totalDeTrasladosPorDespachar++;
         }
         actualizarIndices();
     }
@@ -120,10 +111,7 @@ public class BestEffort {
     private void despacharTrasladoMasRedituable(Traslado trasladoADespachar) {
         acturalizarIndicesMasRedituables(trasladosMasRedituables.desencolar());
         acturalizarIndicesMasAntiguos(trasladosMasAntiguos.eliminar(trasladoADespachar.getIndiceMasAntiguo()));
-        trasladosPorDespachar.set(trasladoADespachar.getIndiceMaestro(), trasladosPorDespachar.get(trasladosArraySize-1));
-        trasladosPorDespachar.get(trasladosArraySize-1).setIndiceMaestro(trasladoADespachar.getIndiceMaestro());
-        trasladosPorDespachar.set(trasladosArraySize-1, null);
-        trasladosArraySize--;
+        totalDeTrasladosPorDespachar--;
     }
 
     public int[] despacharMasAntiguos(int n){
@@ -219,10 +207,7 @@ public class BestEffort {
     private void despacharTrasladoMasAntiguo(Traslado trasladoDespachado) {
         acturalizarIndicesMasAntiguos(trasladosMasAntiguos.desencolar());
         acturalizarIndicesMasRedituables(trasladosMasRedituables.eliminar(trasladoDespachado.getIndiceMasRedituable()));
-        trasladosPorDespachar.set(trasladoDespachado.getIndiceMaestro(), trasladosPorDespachar.get(trasladosArraySize-1));
-        trasladosPorDespachar.get(trasladosArraySize-1).setIndiceMaestro(trasladoDespachado.getIndiceMaestro());
-        trasladosPorDespachar.set(trasladosArraySize-1, null);
-        trasladosArraySize--;
+        totalDeTrasladosPorDespachar--;
     }
 
     public int ciudadConMayorSuperavit(){

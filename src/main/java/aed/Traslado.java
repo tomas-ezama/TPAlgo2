@@ -7,7 +7,6 @@ public class Traslado {
     private int destino;
     private int gananciaNeta;
     private int timestamp;
-    private int indiceMaestro;
     private int indiceMasAntiguo;
     private int indiceMasRedituable;
     public Traslado(int id, int origen, int destino, int gananciaNeta, int timestamp){
@@ -36,14 +35,6 @@ public class Traslado {
 
     public int getTimestamp() {
         return timestamp;
-    }
-
-    public int getIndiceMaestro() {
-        return indiceMaestro;
-    }
-
-    public void setIndiceMaestro(int indiceMaestro) {
-        this.indiceMaestro = indiceMaestro;
     }
 
     public int getIndiceMasAntiguo() {
