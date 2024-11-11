@@ -36,8 +36,8 @@ public class Heap<T> {
             nroDeElementos--;
         } else {
             T poped = proximo();
-            heap.set(RAIZ, heap.get(ultimoElemento()));
-            heap.set(ultimoElemento(), null);
+            heap.set(RAIZ, heap.get(indiceDeUltimoElemento()));
+            heap.set(indiceDeUltimoElemento(), null);
             nroDeElementos--;
             posiciones = bajar(RAIZ);
             posiciones.add(new Pair(nroDeElementos - 1, poped));
@@ -49,7 +49,7 @@ public class Heap<T> {
         return heap.get(RAIZ);
     }
 
-    private ArrayList<Pair<Integer, T>> subir(int posicion) {
+    public ArrayList<Pair<Integer, T>> subir(int posicion) {
         int padre = buscarPosicionPadre(posicion);
         ArrayList<Pair<Integer, T>> posiciones = new ArrayList<>();
         while (posicion != RAIZ && comparator.compare(heap.get(posicion), heap.get(padre)) > 0) {
@@ -62,7 +62,7 @@ public class Heap<T> {
         return posiciones;
     }
 
-    private ArrayList<Pair<Integer, T>> bajar(int posicion) {
+    public ArrayList<Pair<Integer, T>> bajar(int posicion) {
         int izq = buscarPosicionIzq(posicion);
         int der = buscarPosicionDer(posicion);
         ArrayList<Pair<Integer, T>> posiciones = new ArrayList<>();
@@ -85,8 +85,8 @@ public class Heap<T> {
     }
 
     public ArrayList<Pair<Integer, T>> eliminar(int id) {
-       heap.set(id, heap.get(ultimoElemento()));
-       heap.set(ultimoElemento(), null);
+       heap.set(id, heap.get(indiceDeUltimoElemento()));
+       heap.set(indiceDeUltimoElemento(), null);
        nroDeElementos--;
        return bajar(id);
     }
@@ -125,7 +125,7 @@ public class Heap<T> {
         return s + heap.get(nroDeElementos-1);
     }
 
-    public int ultimoElemento() {
+    public int indiceDeUltimoElemento() {
         return nroDeElementos - 1;
     }
 
@@ -133,5 +133,7 @@ public class Heap<T> {
         return new ArrayList<>(heap);
     }
 
-
+    public int getNroDeElementos() {
+        return nroDeElementos;
+    }
 }
