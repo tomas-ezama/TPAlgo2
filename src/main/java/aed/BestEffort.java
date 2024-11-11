@@ -138,13 +138,13 @@ public class BestEffort {
             ciudadesConMayorPerdida.clear();
             ciudadesConMayorPerdida.add(idDestino);
         } else if (ciudades[idDestino].getPerdidaTotal() == ciudades[ciudadesConMayorPerdida.get(0)].getPerdidaTotal()) {
-            boolean flag = true;
+            boolean noPertenece = true;
             for (Integer ciudad : ciudadesConMayorPerdida) {
                 if (ciudad == idDestino) {
-                    flag = false;
+                    noPertenece = false;
                 }
             }
-            if (flag) {
+            if (noPertenece) {
                 ciudadesConMayorPerdida.add(idDestino);
             } else {
                 ciudadesConMayorPerdida.clear();
@@ -192,13 +192,16 @@ public class BestEffort {
             ciudadesConMayorGanacia.clear();
             ciudadesConMayorGanacia.add(idOrigen);
         } else if (ciudades[idOrigen].getGananciaTotal() == ciudades[ciudadesConMayorGanacia.get(0)].getGananciaTotal()) {
-            boolean flag = true;
+            boolean noPertenece = true;
             for (Integer ciudad : ciudadesConMayorGanacia) {
                 if (ciudad == idOrigen) {
-                    flag = false;
+                    noPertenece = false;
                 }
             }
-            if (flag) {
+            if (noPertenece) {
+                ciudadesConMayorGanacia.add(idOrigen);
+            } else {
+                ciudadesConMayorGanacia.clear();
                 ciudadesConMayorGanacia.add(idOrigen);
             }
         }
