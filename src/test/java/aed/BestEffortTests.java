@@ -196,4 +196,113 @@ public class BestEffortTests {
         assertEquals(2, sis.ciudadConMayorSuperavit());
 
     }
+
+  // Tests agregados por el grupo
+    
+    @Test
+    void mayor_ganancia(){
+        Traslado[] nuevos = new Traslado[] {
+            new Traslado(1, 1, 4, 100, 5),
+            new Traslado(2, 0, 6, 300, 2),
+            new Traslado(3, 5, 2, 1000, 3),
+            new Traslado(4, 3, 5, 500, 4),
+            new Traslado(5, 5, 1, 2000, 1),
+            new Traslado(6, 6, 0, 3000, 6),
+            new Traslado(7, 2, 1, 999, 7),
+            new Traslado(8, 2, 3, 999, 8),
+            new Traslado(9, 2, 5, 999, 10),
+            new Traslado(10, 2, 1, 999, 9)
+
+        };
+
+        BestEffort sis = new BestEffort(this.cantCiudades, nuevos);
+
+        sis.despacharMasRedituables(1);
+        assertSetEquals(new ArrayList<>(Arrays.asList(6)), sis.ciudadesConMayorGanancia());
+
+        sis.despacharMasRedituables(2);
+        assertSetEquals(new ArrayList<>(Arrays.asList(6,5)), sis.ciudadesConMayorGanancia());
+
+        sis.despacharMasRedituables(4);
+        assertSetEquals(new ArrayList<>(Arrays.asList(2)), sis.ciudadesConMayorGanancia());
+    }
+
+    @Test
+    void mayor_perdida(){
+        Traslado[] nuevos = new Traslado[] {
+            new Traslado(1, 1, 4, 200, 5),
+            new Traslado(2, 6, 6, 300, 2), 
+            new Traslado(3, 5, 2, 1000, 3), 
+            new Traslado(4, 3, 5, 500, 4),
+            new Traslado(5, 5, 1, 2000, 1), 
+            new Traslado(6, 6, 0, 3000, 6), 
+            new Traslado(7, 2, 4, 2900, 7),
+            new Traslado(8, 2, 3, 500, 8),
+            new Traslado(9, 2, 5, 100, 10),
+            new Traslado(10, 2, 1, 300, 9)
+
+        };
+
+        BestEffort sis = new BestEffort(this.cantCiudades, nuevos);
+
+        sis.despacharMasAntiguos(3);
+        assertSetEquals(new ArrayList<>(Arrays.asList(1)), sis.ciudadesConMayorPerdida());
+
+        sis.despacharMasRedituables(1);
+        assertSetEquals(new ArrayList<>(Arrays.asList(0)), sis.ciudadesConMayorPerdida());
+
+        sis.despacharMasAntiguos(3);
+        assertSetEquals(new ArrayList<>(Arrays.asList(4)), sis.ciudadesConMayorPerdida());
+    }
+
+    @Test
+    void despachar_de_sobra(){
+        Traslado[] nuevos = new Traslado[] {
+            new Traslado(1, 0, 1, 200, 1),
+            new Traslado(2, 0, 1, 300, 2), 
+            new Traslado(3, 1, 0, 1000, 3), 
+            new Traslado(4, 1, 0, 500, 4)
+        };
+
+        BestEffort sis = new BestEffort(this.cantCiudades, nuevos);
+
+        sis.despacharMasAntiguos(2);
+        sis.despacharMasRedituables(3);
+        assertSetEquals(new ArrayList<>(Arrays.asList(1)), sis.ciudadesConMayorGanancia());
+        assertSetEquals(new ArrayList<>(Arrays.asList(0)), sis.ciudadesConMayorPerdida());
+        assertEquals(1, sis.ciudadConMayorSuperavit());
+
+        Traslado[] masNuevos = new Traslado[] {
+            new Traslado(5, 4, 3, 10000, 5),
+            new Traslado(6, 6,4,1000,6),
+            new Traslado(6, 1,4,5000,6)
+
+        };
+
+        sis.registrarTraslados(masNuevos);
+
+        sis.despacharMasAntiguos(4);
+        assertSetEquals(new ArrayList<>(Arrays.asList(4)), sis.ciudadesConMayorGanancia());
+        assertEquals(1, sis.ciudadConMayorSuperavit());
+    }
+
+    @Test
+    void todos_empatan(){
+        Traslado[] nuevos = new Traslado[] {
+            new Traslado(1,1,2,100,1),
+            new Traslado(2,2,3,100,2),
+            new Traslado(3,3,4,100,3),
+            new Traslado(4,4,1,100,4)
+        };
+
+        BestEffort sis = new BestEffort(cantCiudades, nuevos);
+
+        sis.despacharMasAntiguos(2);
+        sis.despacharMasRedituables(10);
+
+        assertSetEquals(new ArrayList<>(Arrays.asList(1,2,3,4)), sis.ciudadesConMayorGanancia());
+        assertSetEquals(new ArrayList<>(Arrays.asList(1,2,3,4)), sis.ciudadesConMayorPerdida());
+        assertEquals(1, sis.ciudadConMayorSuperavit());
+        }
 }
+
