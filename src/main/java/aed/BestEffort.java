@@ -22,15 +22,15 @@ public class BestEffort {
     public BestEffort(int cantCiudades, Traslado[] traslados){
         totalDeTrasladosPorDespachar = traslados.length;
         gananciaTotal = 0;
-        iniciarCiudades(cantCiudades);
-        iniciarTraslados();
-        for (int i = 0; i < totalDeTrasladosPorDespachar; i++) {
+        iniciarCiudades(cantCiudades); //O(C)
+        iniciarTraslados(); //O(1)
+        for (int i = 0; i < totalDeTrasladosPorDespachar; i++) { //O(T)
             Traslado traslado = traslados[i];
-            trasladosMasAntiguos.encolar(traslado);
-            trasladosMasRedituables.encolar(traslado);
+            trasladosMasAntiguos.encolar(traslado); // O(Log(T))
+            trasladosMasRedituables.encolar(traslado); // O(Log(T))
         }
-        actualizarIndices();
-    }
+        actualizarIndices(); //O(T)
+    } //O(C) + O(T) * O(Log(T))
 
     private void actualizarIndices() {
         ArrayList<Traslado> masAntiguosHeap = trasladosMasAntiguos.getHeap();
@@ -39,15 +39,15 @@ public class BestEffort {
             masAntiguosHeap.get(i).setIndiceMasAntiguo(i);
             masRedituablesHeap.get(i).setIndiceMasRedituable(i);
         }
-    }
+    } //O(N)
 
     private void acturalizarIndicesMasAntiguos (ArrayList<Pair<Integer, Traslado>> lista) {
-        for (int i = 0; i < lista.size(); i++) {
+        for (int i = 0; i < lista.size(); i++) { // O(N)
             if(Objects.nonNull(lista.get(i).getValue())) {
                 lista.get(i).getValue().setIndiceMasAntiguo(lista.get(i).getKey());
             }
         }
-    }
+    } // O(N)
 
     private void acturalizarIndicesMasRedituables (ArrayList<Pair<Integer, Traslado>> lista) {
         for (int i = 0; i < lista.size(); i++) {
@@ -67,7 +67,7 @@ public class BestEffort {
 
     private void iniciarCiudades(int cantCiudades) {
         this.ciudades = new Ciudad[cantCiudades];
-        for (int i = 0; i < cantCiudades; i++) {
+        for (int i = 0; i < cantCiudades; i++) { // O(N)
             this.ciudades[i] = new Ciudad(i);
         }
         ciudadesConMayorGanacia = new ArrayList<>();
@@ -75,67 +75,68 @@ public class BestEffort {
         ciudadesConMayorSuperavit = new Heap<>(new CiudadesRedituablesComparator());
         ciudadesConMayorGanacia.add(0);
         ciudadesConMayorPerdida.add(0);
-    }
+    } //O(N)
 
     private void iniciarTraslados() {
         trasladosMasAntiguos = new Heap<>(new TrasladosAntiguosComparator());
         trasladosMasRedituables = new Heap<>(new TrasladosRedituablesComparator());
-    }
+    } // O(1)
 
     public void registrarTraslados(Traslado[] traslados) {
-        for (Traslado traslado: traslados) {
-            trasladosMasRedituables.encolar(traslado);
-            trasladosMasAntiguos.encolar(traslado);
+        for (Traslado traslado: traslados) { // O(traslados)
+            ArrayList<Pair<Integer, Traslado>> indicesRedi = trasladosMasRedituables.encolar(traslado); // O(Log(T))
+            acturalizarIndicesMasRedituables(indicesRedi); // O(N) = O(Log(T))
+            ArrayList<Pair<Integer, Traslado>> indicesAntiguos = trasladosMasAntiguos.encolar(traslado); // O(Log(T))
+            acturalizarIndicesMasAntiguos(indicesAntiguos); // O(N) =O(Log(T))
             totalDeTrasladosPorDespachar++;
         }
-        actualizarIndices();
-    }
+    } // O(traslados * O(Log(T))
 
-    public int[] despacharMasRedituables(int n){
+    public int[] despacharMasRedituables(int n) {
         n = n > trasladosMasRedituables.getNroDeElementos() ? trasladosMasRedituables.getNroDeElementos() : n;
         int[] ids = new int[n];
-        for (int i = 0; i < n; i++) {
-            Traslado trasladoADespachar = trasladosMasRedituables.proximo();
-            despacharTrasladoMasRedituable(trasladoADespachar);
-            actualizarCiudadesConMayorGanancia(trasladoADespachar);
-            actualizarCiudadConMayorPerdida(trasladoADespachar);
-            actualizarCiudadMasRedituables(trasladoADespachar);
+        for (int i = 0; i < n; i++) { // O(n)
+            Traslado trasladoADespachar = trasladosMasRedituables.proximo(); // O(1)
+            despacharTrasladoMasRedituable(trasladoADespachar); // O(Log(T)) + O(Log(T))
+            actualizarCiudadesConMayorGanancia(trasladoADespachar); // Si todas tienen mayor gananacia o mayor perdida
+            actualizarCiudadConMayorPerdida(trasladoADespachar); // tendremos O(C).
+            actualizarCiudadMasRedituables(trasladoADespachar); // O(Log(C)) + O(Log(C))
 
             ids[i] = trasladoADespachar.getId();
             totalDeTrasladosDespachados++;
             gananciaTotal += trasladoADespachar.getGananciaNeta();
         }
         return ids;
-    }
+    } // O( n * ( Log(T) + Log(C) )
 
     private void despacharTrasladoMasRedituable(Traslado trasladoADespachar) {
-        acturalizarIndicesMasRedituables(trasladosMasRedituables.desencolar());
-        acturalizarIndicesMasAntiguos(trasladosMasAntiguos.eliminar(trasladoADespachar.getIndiceMasAntiguo()));
+        acturalizarIndicesMasRedituables(trasladosMasRedituables.desencolar()); // O(Log(T))
+        acturalizarIndicesMasAntiguos(trasladosMasAntiguos.eliminar(trasladoADespachar.getIndiceMasAntiguo())); // O(Log(T))
         totalDeTrasladosPorDespachar--;
-    }
+    } // O(Log(T)) + O(Log(T))
 
     public int[] despacharMasAntiguos(int n){
         n = n > trasladosMasAntiguos.getNroDeElementos() ? trasladosMasAntiguos.getNroDeElementos() : n;
         int[] ids = new int[n];
         for (int i = 0; i < n; i++) {
             Traslado trasladoADespachar = trasladosMasAntiguos.proximo();
-            despacharTrasladoMasAntiguo(trasladoADespachar);
-            actualizarCiudadesConMayorGanancia(trasladoADespachar);
-            actualizarCiudadConMayorPerdida(trasladoADespachar);
-            actualizarCiudadMasRedituables(trasladoADespachar);
+            despacharTrasladoMasAntiguo(trasladoADespachar); // O(Log(T)) + O(Log(T))
+            actualizarCiudadesConMayorGanancia(trasladoADespachar); // Si todas tienen mayor gananacia o mayor perdida
+            actualizarCiudadConMayorPerdida(trasladoADespachar); // tendremos O(C).
+            actualizarCiudadMasRedituables(trasladoADespachar); // O(Log(C)) + O(Log(C))
 
             ids[i] = trasladoADespachar.getId();
             totalDeTrasladosDespachados++;
             gananciaTotal += trasladoADespachar.getGananciaNeta();
         }
         return ids;
-    }
+    } // O( n * ( Log(T) + Log(C) )
 
     private void actualizarCiudadConMayorPerdida(Traslado trasladoADespachar) {
         int idDestino = trasladoADespachar.getDestino();
         ciudades[idDestino].sumarPerdidaTotal(trasladoADespachar.getGananciaNeta());
         if (ciudades[idDestino].getPerdidaTotal() > ciudades[ciudadesConMayorPerdida.get(0)].getPerdidaTotal()) {
-            ciudadesConMayorPerdida.clear();
+            ciudadesConMayorPerdida =  new ArrayList<>();
             ciudadesConMayorPerdida.add(idDestino);
         } else if (ciudades[idDestino].getPerdidaTotal() == ciudades[ciudadesConMayorPerdida.get(0)].getPerdidaTotal()) {
             boolean noPertenece = true;
@@ -147,25 +148,9 @@ public class BestEffort {
             if (noPertenece) {
                 ciudadesConMayorPerdida.add(idDestino);
             } else {
-                ciudadesConMayorPerdida.clear();
+                ciudadesConMayorPerdida = new ArrayList<>();
                 ciudadesConMayorPerdida.add(idDestino);
             }
-        }
-    }
-
-    private void actualizarCiudadConGananciaEnMasRedituables(int idOrigen) {
-        if (ciudades[idOrigen].getIndiceEnHeap() == -1) {
-            acturalizarCiudadesMasRedituables(ciudadesConMayorSuperavit.encolar(ciudades[idOrigen]));
-        } else {
-            acturalizarCiudadesMasRedituables(ciudadesConMayorSuperavit.subir(ciudades[idOrigen].getIndiceEnHeap()));
-        }
-    }
-
-    private void actualizarCiudadConPerdidaEnMasRedituables(int idDestion) {
-        if (ciudades[idDestion].getIndiceEnHeap() == -1) {
-            acturalizarCiudadesMasRedituables(ciudadesConMayorSuperavit.encolar(ciudades[idDestion]));
-        } else {
-            acturalizarCiudadesMasRedituables(ciudadesConMayorSuperavit.bajar(ciudades[idDestion].getIndiceEnHeap()));
         }
     }
 
@@ -175,25 +160,24 @@ public class BestEffort {
         if (ciudades[idDestino].getIndiceEnHeap() == -1) {
             acturalizarCiudadesMasRedituables(ciudadesConMayorSuperavit.encolar(ciudades[idDestino]));
         } else {
-            acturalizarCiudadesMasRedituables(ciudadesConMayorSuperavit.bajar(ciudades[idDestino].getIndiceEnHeap()));
+            acturalizarCiudadesMasRedituables(ciudadesConMayorSuperavit.bajar(ciudades[idDestino].getIndiceEnHeap())); // O(Log(C)) + O(Log(C))
         }
         if (ciudades[idOrigen].getIndiceEnHeap() == -1) {
             acturalizarCiudadesMasRedituables(ciudadesConMayorSuperavit.encolar(ciudades[idOrigen]));
         } else {
-            acturalizarCiudadesMasRedituables(ciudadesConMayorSuperavit.subir(ciudades[idOrigen].getIndiceEnHeap()));
-
+            acturalizarCiudadesMasRedituables(ciudadesConMayorSuperavit.subir(ciudades[idOrigen].getIndiceEnHeap())); // O(Log(C)) + O(Log(C))
         }
-    }
+    } // O(Log(C))
 
     private void actualizarCiudadesConMayorGanancia(Traslado trasladoADespachar) {
         int idOrigen = trasladoADespachar.getOrigen();
         ciudades[idOrigen].sumarGananciaTotal(trasladoADespachar.getGananciaNeta());
         if (ciudades[idOrigen].getGananciaTotal() > ciudades[ciudadesConMayorGanacia.get(0)].getGananciaTotal()) {
-            ciudadesConMayorGanacia.clear();
+            ciudadesConMayorGanacia = new ArrayList<>();
             ciudadesConMayorGanacia.add(idOrigen);
         } else if (ciudades[idOrigen].getGananciaTotal() == ciudades[ciudadesConMayorGanacia.get(0)].getGananciaTotal()) {
             boolean noPertenece = true;
-            for (Integer ciudad : ciudadesConMayorGanacia) {
+            for (Integer ciudad : ciudadesConMayorGanacia) { // O(C)
                 if (ciudad == idOrigen) {
                     noPertenece = false;
                 }
@@ -201,15 +185,15 @@ public class BestEffort {
             if (noPertenece) {
                 ciudadesConMayorGanacia.add(idOrigen);
             } else {
-                ciudadesConMayorGanacia.clear();
+                ciudadesConMayorGanacia = new ArrayList<>();
                 ciudadesConMayorGanacia.add(idOrigen);
             }
         }
-    }
+    } // O(C)
 
     private void despacharTrasladoMasAntiguo(Traslado trasladoDespachado) {
-        acturalizarIndicesMasAntiguos(trasladosMasAntiguos.desencolar());
-        acturalizarIndicesMasRedituables(trasladosMasRedituables.eliminar(trasladoDespachado.getIndiceMasRedituable()));
+        acturalizarIndicesMasAntiguos(trasladosMasAntiguos.desencolar()); // O(Log(T)) + O(Log(T))
+        acturalizarIndicesMasRedituables(trasladosMasRedituables.eliminar(trasladoDespachado.getIndiceMasRedituable())); // O(Log(T)) + O(Log(T))
         totalDeTrasladosPorDespachar--;
     }
 
